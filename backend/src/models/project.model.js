@@ -8,6 +8,12 @@ const projectSchema = new mongoose.Schema(
       trim: true,
     },
 
+    description: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
     tasks: [
       {
         type: mongoose.Schema.ObjectId,

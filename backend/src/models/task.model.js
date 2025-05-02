@@ -19,10 +19,10 @@ const taskSchema = new mongoose.Schema({
         required: true,
         trim: true,
         enum: {
-            values: ["processing", "completed", "testing", "deployed"],
+            values: ["created", "in-progress", "completed", "testing", "deployed"],
             message: "{VALUE} is not a valid status. Use: processing, completed, testing, deployed",
         },
-        default: "processing",
+        default: "created",
         lowercase: true, // Converts input to lowercase (e.g., "COMPLETED" → "completed")
     },
 

@@ -11,13 +11,14 @@ class ProjectController {
       session.startTransaction();
 
       // GET the name
-      const { name } = req.body;
+      const { name, description } = req.body;
       // GET the ID of LOGGED IN USER
       const createdBy = req.user._id;
 
       // CREATE the INSTANCE of Project
       const project = new Project({
         name,
+        description,
         createdBy,
         assignedTo: req.user._id,
       });
@@ -78,8 +79,6 @@ class ProjectController {
         await project.save({session});
       }
 
-      //
-
       // FIND THE USER
       const user = await User.findById({ _id: req.user._id });
       if (!user) throw new Error("User not found");
@@ -87,7 +86,7 @@ class ProjectController {
       // UPDATE THE PROJECT TASK LIST
       const updatedUser = await user.addProject(project._id);
 
-      res.status(400).json({
+      res.status(200).json({
         msg:
           updatedUser.name +
           " Enrolled into the " +
@@ -109,6 +108,93 @@ class ProjectController {
 
     session.endSession();
   };
+
+  // GET AVAILABLE PROJECTS
+  static getAvailableProjects = async (req, res) => {
+
+    try {
+      
+      // ENROLLED PROJECTS
+      const enrolledProjects = req.user.projects;
+
+      // FETCH THE AVAILABLE PROJECTS
+      const availableProjects = await Project.find({
+        _id: {$nin: enrolledProjects}
+      })
+
+      // SEND BACK THE RESPONSE
+      res.status(200).json({
+        msg: "Projects fetched successfully",
+        success: true,
+        data: availableProjects
+      })
+
+    } catch (error) {
+        res.status(400).json({
+          msg: "Unable to fetch Projects",
+          success: false,
+          data: {}
+        })
+    }
+  }
+
+  // GET USER PROJECTS
+  static getUserProjects = async (req, res) => {
+
+    try {
+
+      // FETCH THE PROJECT FOR THE USER
+      const projects = await Project.find({
+        _id: {$in: req.user.projects},
+      })
+
+
+      // SEND BACK THE RESPONSE
+      res.status(200).json({
+        msg: "Projects fetched successfully",
+        success: true,
+        data: projects,
+      })
+
+
+    } catch (error) {
+        res.status(400).json({
+          msg: error.message,
+          success: false,
+          data: [],
+        })
+    }
+  }
+
+  // GET SINGLE PROJECT
+  static getSingleProject = async (req, res) => {
+
+    try {
+
+      const {projectId} = req.params;
+
+      const project = await Project.findById(projectId)
+      .populate('tasks')         // Populate task details
+      .populate("createdBy")
+      .populate('assignedTo');   // Populate user details
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    res.status(200).json({
+      msg: "Project details fetched successfully",
+      success: true,
+      data: project,
+    })
+    } catch (error) {
+        res.status(400).json({
+          msg: error.message,
+          success: false,
+          data: {}
+        })
+    }
+  }
 }
 
 export default ProjectController;

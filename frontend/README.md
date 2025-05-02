@@ -5,3 +5,7 @@
 - Setup Redux Store
 - Created Login, Signup and Body page
 - Integrate the backend API with Login and Signup
+- Create UI for body
+- Added Single Project Page UI
+- Dynamic fetching available projects and user projects the backend
+- Added Dynamic Create, Read, Update Delete or Project and Tasks

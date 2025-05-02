@@ -4,6 +4,7 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Body from './components/body'
 import Login from './components/login'
+import SingleProject from './components/SingleProject'
 
 const App = () => {
 
@@ -13,6 +14,7 @@ const App = () => {
       <Routes>
           <Route path="/" element={<Body />}/>
           <Route path="/login" element={<Login />}/>
+          <Route path="/project/:projectId" element={<SingleProject />} />
       </Routes>
       </BrowserRouter>
     </Provider>

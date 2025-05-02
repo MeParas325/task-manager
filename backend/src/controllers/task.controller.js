@@ -85,7 +85,7 @@ class TaskController {
 
       // SEND BACK THE RESPONSE
       res.status(200).json({
-        msg: "Task read by " + req.user.title,
+        msg: "Task read by " + req.user.name,
         success: true,
         data: task,
       });
@@ -102,7 +102,7 @@ class TaskController {
   static updateTask = async (req, res) => {
     try {
       
-      const {taskId} = req.body;
+      const {taskId} = req.params;
 
       // CHECK IF TASK EXIST OR NOT
       const isTaskExist = await Task.findOne({_id: taskId});
@@ -133,52 +133,56 @@ class TaskController {
     }
   };
 
-  // DELETE TASK
-  static deleteTask = async (req, res) => {
+// DELETE TASK
+static deleteTask = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-    const session = await mongoose.startSession();
-    try {
+    const { taskId } = req.body;
 
-      session.startTransaction();
-      // GET THE TASKID FROM THE BODY
-      const {taskId} = req.body;
-
-      // CHECK IF TASK EXIST OR NOT
-      const isTaskExist = await Task.findOne({_id: taskId});
-
-      // THROW ERROR IF NOT EXIST
-      if(!isTaskExist) 
-          throw new Error("Task is not exist");
-
-      const task = await Task.findByIdAndDelete(taskId).session(session);
-
-      await Project.updateMany(
-        { tasks: taskId },
-        { $pull: { tasks: taskId } },
-        { session }
-    );
-
-      session.commitTransaction();
-
-      res.status(200).json({
-        msg: "Task deleted successfully",
-        success: true,
-        data: task
-      })
-
-      
-    } catch (error) {
-
-      session.abortTransaction();
-      res.status(400).json({
-        msg: error.message,
-        success: false,
-        data: {}
-      })
+    // Validate taskId format
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      throw new Error("Invalid Task ID");
     }
 
-    session.endSession()
-  };
+    // Check if the task exists
+    const isTaskExist = await Task.findById(taskId);
+    if (!isTaskExist) {
+      throw new Error("Task does not exist");
+    }
+
+    // Delete the task
+    const deletedTask = await Task.findByIdAndDelete(taskId).session(session);
+
+    // Remove task reference from any project
+    await Project.updateMany(
+      { tasks: taskId },
+      { $pull: { tasks: taskId } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({
+      msg: "Task deleted successfully",
+      success: true,
+      data: deletedTask
+    });
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    return res.status(400).json({
+      msg: error.message,
+      success: false,
+      data: null
+    });
+  }
+};
+
 }
 
 export default TaskController;

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addUser } from "../store/slices/userSlice";
 import { BASE_URL } from "../constants/constants";
+import toast from "react-hot-toast";
 
 const Login = () => {
   // state variables
@@ -34,15 +35,19 @@ const Login = () => {
         }
       );
 
+      console.log("Login response is: ", res?.data?.msg);
       // add login user to the store
-      dispatch(addUser(res.data.data));
+      dispatch(addUser(res?.data?.data));
+      toast.success(res?.data?.msg);
       setError("");
 
       // redirect to / page
-      return navigate("/");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000)
     } catch (error) {
       // set error message
-      setError(error.response.data);
+      setError(error.response?.data?.msg);
     }
   };
 
@@ -67,10 +72,15 @@ const Login = () => {
       dispatch(addUser(res?.data?.data));
       setError("");
 
+      toast.success(res?.data?.msg);
+      setError("");
+
       // redirect to / page
-      return navigate("/");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000)
     } catch (error) {
-      setError(error.response.data);
+      setError(error.response?.data?.msg);
     }
   };
 

@@ -14,7 +14,7 @@ router.put("/read",
     TaskController.readTask
 );
 
-router.put("/update", 
+router.put("/update/:taskId", 
     userAuth, 
     TaskController.updateTask
 );

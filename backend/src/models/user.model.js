@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
 // ADD PROJECTS TO THE USER COLLECTION
 userSchema.methods.addProject = async function (projectId) {
     if (this.projects.length >= 4) {
-        throw new Error("User cannot have more than 4 projects");
+        throw new Error("You cannot have more than 4 projects");
     }
     if (!this.projects.includes(projectId)) {
         this.projects.push(projectId);

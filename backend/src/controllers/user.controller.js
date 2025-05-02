@@ -52,7 +52,6 @@ class UserController {
 
   // REGISTER the USER
   static register = async (req, res) => {
-    console.log("Inside register")
     try {
       // VALIDATE the DATA
       validateSignUpData(req);

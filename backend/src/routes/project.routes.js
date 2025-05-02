@@ -4,6 +4,24 @@ import userAuth from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+// get routes
+router.get("/available", 
+    userAuth,
+    ProjectController.getAvailableProjects
+)
+
+router.get("/my", 
+    userAuth,
+    ProjectController.getUserProjects
+)
+
+router.get("/single/:projectId",
+    userAuth,
+    ProjectController.getSingleProject
+)
+
+
+// post routes
 router.post("/create-project",
     userAuth,
     ProjectController.createProject
